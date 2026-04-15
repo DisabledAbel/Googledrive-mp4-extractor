@@ -4,9 +4,9 @@ module.exports = async function handler(req, res) {
   try {
     const input = req.query.input || req.query.url || req.body?.input || req.body?.url;
     const { fileId, resourceKey } = extractDriveParams(input);
+    const isFolderLike = /drive\.google\.com\/drive\/(?:folders\/|my-drive(?:\/|$)|shared-with-me(?:\/|$))/i.test(String(input || ''));
 
-    if (!fileId) {
-      const isFolderLike = /drive\.google\.com\/drive\/(?:folders\/|my-drive(?:\/|$)|shared-with-me(?:\/|$))/i.test(String(input || ''));
+    if (!fileId || isFolderLike) {
       res.status(400).json({
         error: isFolderLike
           ? 'This is a Google Drive folder/location URL. Please provide a file URL (…/file/d/FILE_ID/...).'
