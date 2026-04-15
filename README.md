@@ -1,7 +1,6 @@
 # gdrive-mp4-extractor
 
-Turn Google Drive share links into direct MP4/MOV URLs for VLC, Infuse, and nPlayer — no backend, no installs, just open and go.
-
+Turn Google Drive share links into direct MP4/MOV URLs for VLC, Infuse, and nPlayer — no backend, no installs, just deploy and go.
 
 ## What it does
 
