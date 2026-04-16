@@ -12,12 +12,10 @@ Everything runs in your browser. There's no server, no account, and nothing to i
 
 ## Usage
 
-1. Visit the live site on Vercel
+1. Deploy the service on Vercel
 2. Paste your Google Drive share URL
 3. Copy the generated direct link
 4. Open it in your media player of choice
-
-No setup needed — it's already deployed and ready to use.
 
 ---
 
