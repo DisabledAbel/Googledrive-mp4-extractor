@@ -32,7 +32,7 @@ Everything runs in your browser. There's no server, no account, and nothing to i
 
 ## Supported URL formats
 
-The parser now supports common Google Drive + Google Docs URL shapes and extracts either the `FILE_ID` (or `FOLDER_ID` for folder links):
+The parser supports common Google Drive + Google Docs URL shapes and extracts either the `FILE_ID` (or `FOLDER_ID` for folder links):
 
 ```
 // Standard share/view
