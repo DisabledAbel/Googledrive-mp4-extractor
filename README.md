@@ -90,7 +90,7 @@ FILE_ID
 
 ---
 
-## Deploy your own
+## Deploy easily 
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/DisabledAbel/gdrive-mp4-extractor)
 
