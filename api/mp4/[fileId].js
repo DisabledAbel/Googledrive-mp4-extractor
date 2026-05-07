@@ -23,8 +23,9 @@ module.exports = async function handler(req, res) {
       headers: upstreamHeaders
     });
     const ext = (() => {
-      const rawExt = req.query.ext || '';
-      if (rawExt) return rawExt.toLowerCase();
+      const ALLOWED = new Set(['mp4', 'mov', 'mkv']);
+      const rawExt = (req.query.ext || '').toLowerCase();
+      if (ALLOWED.has(rawExt)) return rawExt;
       const idStr = String(rawId).toLowerCase();
       if (idStr.endsWith('.mkv')) return 'mkv';
       if (idStr.endsWith('.mov')) return 'mov';
