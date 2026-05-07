@@ -28,13 +28,21 @@ module.exports = async function handler(req, res) {
     const downloadMovUrl = new URL(movUrl.toString());
     downloadMovUrl.searchParams.set('download', '1');
 
+    const mkvUrl = new URL(`${protocol}://${host}/mp4/${fileId}.mkv`);
+    if (resourceKey) mkvUrl.searchParams.set('rk', resourceKey);
+
+    const downloadMkvUrl = new URL(mkvUrl.toString());
+    downloadMkvUrl.searchParams.set('download', '1');
+
     res.status(200).json({
       fileId,
       resourceKey,
       mp4Url: mp4Url.toString(),
       movUrl: movUrl.toString(),
+      mkvUrl: mkvUrl.toString(),
       downloadUrl: downloadUrl.toString(),
-      downloadMovUrl: downloadMovUrl.toString()
+      downloadMovUrl: downloadMovUrl.toString(),
+      downloadMkvUrl: downloadMkvUrl.toString()
     });
   } catch (error) {
     res.status(502).json({

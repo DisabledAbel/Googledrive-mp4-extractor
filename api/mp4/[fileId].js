@@ -22,7 +22,15 @@ module.exports = async function handler(req, res) {
       resourceKey,
       headers: upstreamHeaders
     });
-    const ext = String(req.query.ext || (String(rawId).toLowerCase().endsWith('.mov') ? 'mov' : 'mp4')).toLowerCase() === 'mov' ? 'mov' : 'mp4';
+    const ext = (() => {
+      const ALLOWED = new Set(['mp4', 'mov', 'mkv']);
+      const rawExt = (req.query.ext || '').toLowerCase();
+      if (ALLOWED.has(rawExt)) return rawExt;
+      const idStr = String(rawId).toLowerCase();
+      if (idStr.endsWith('.mkv')) return 'mkv';
+      if (idStr.endsWith('.mov')) return 'mov';
+      return 'mp4';
+    })();
     const forceDownload = String(req.query.download || req.query.dl || '').toLowerCase() === '1'
       || String(req.query.download || req.query.dl || '').toLowerCase() === 'true';
     const upstreamContentType = driveResponse.headers.get('content-type') || 'video/mp4';
@@ -36,14 +44,14 @@ module.exports = async function handler(req, res) {
     const fileName = sanitizeFileName(decodeURIComponent(matchedName?.[1] || matchedName?.[2] || fileId));
 
     res.statusCode = driveResponse.status;
-    const fallbackType = ext === 'mov' ? 'video/quicktime' : 'video/mp4';
+    const fallbackType = ext === 'mov' ? 'video/quicktime' : ext === 'mkv' ? 'video/x-matroska' : 'video/mp4';
     res.setHeader('Content-Type', upstreamContentType.includes('video') ? upstreamContentType : fallbackType);
     if (upstreamLength) res.setHeader('Content-Length', upstreamLength);
     if (upstreamAcceptRanges) res.setHeader('Accept-Ranges', upstreamAcceptRanges);
     if (upstreamContentRange) res.setHeader('Content-Range', upstreamContentRange);
     if (upstreamEtag) res.setHeader('ETag', upstreamEtag);
     if (upstreamLastModified) res.setHeader('Last-Modified', upstreamLastModified);
-    const finalName = fileName.endsWith(`.${ext}`) ? fileName : `${fileName.replace(/\.(mp4|mov)$/i, '')}.${ext}`;
+    const finalName = fileName.endsWith(`.${ext}`) ? fileName : `${fileName.replace(/\.(mp4|mov|mkv)$/i, '')}.${ext}`;
     res.setHeader('Content-Disposition', `${forceDownload ? 'attachment' : 'inline'}; filename="${finalName}"`);
     res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
 

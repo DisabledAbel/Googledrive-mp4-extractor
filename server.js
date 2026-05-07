@@ -28,6 +28,11 @@ app.get('/mp4/:fileId.mov', (req, res) => {
   mp4Handler(req, res);
 });
 
+app.get('/mp4/:fileId.mkv', (req, res) => {
+  req.query = { ...req.query, fileId: req.params.fileId, ext: 'mkv' };
+  mp4Handler(req, res);
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
