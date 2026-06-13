@@ -1,0 +1,11 @@
+node_modules
+*.log
+.DS_Store
+.env
+test_output
+test_results.log
+server_manual.log
+server_verification.log
+server_final.log
+server_restart.log
+/home/jules/verification

@@ -96,6 +96,31 @@ FILE_ID
 
 ---
 
+## Run locally
+
+You can run the extractor on your own machine:
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/DisabledAbel/gdrive-mp4-extractor.git
+   cd gdrive-mp4-extractor
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start the server**
+   ```bash
+   npm start
+   ```
+
+4. **Open the app**
+   Visit `http://localhost:3000` and enable **"Use Local Proxy"** to generate local links.
+
+---
+
 ## How it works
 
 The tool extracts the file ID from your share URL and constructs a `drive.google.com/uc?export=download&id=FILE_ID` link, which Google Drive serves as a direct download/stream endpoint compatible with media players.

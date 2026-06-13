@@ -110,6 +110,85 @@
       color: #dcebff;
     }
 
+    .toggle-container {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--border);
+      transition: .4s;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--text);
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent);
+    }
+
+    input:focus + .slider {
+      box-shadow: 0 0 1px var(--accent);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    .local-info {
+      margin-top: 24px;
+      padding: 16px;
+      background: #1a202c;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.85rem;
+    }
+
+    .local-info h2 {
+      margin-top: 0;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .local-info code {
+      background: #0d121a;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
     .result {
       margin-top: 16px;
       display: grid;
@@ -175,10 +254,18 @@
     <textarea id="input" placeholder="https://drive.google.com/file/d/FILE_ID/view"></textarea>
 
     <div class="chips" role="tablist" aria-label="Output format">
-      <button class="chip active" role="tab" aria-selected="true" data-format="vlcWeb">Vercel .mp4 URL</button>
-      <button class="chip" role="tab" aria-selected="false" data-format="movWeb">Vercel .mov URL</button>
-      <button class="chip" role="tab" aria-selected="false" data-format="mkvWeb">Vercel .mkv URL</button>
+      <button class="chip active" role="tab" aria-selected="true" data-format="vlcWeb">Proxy .mp4 URL</button>
+      <button class="chip" role="tab" aria-selected="false" data-format="movWeb">Proxy .mov URL</button>
+      <button class="chip" role="tab" aria-selected="false" data-format="mkvWeb">Proxy .mkv URL</button>
       <button class="chip" role="tab" aria-selected="false" data-format="download">Direct download URL</button>
+    </div>
+
+    <div class="toggle-container">
+      <label class="switch">
+        <input type="checkbox" id="localProxyToggle">
+        <span class="slider"></span>
+      </label>
+      <span>Use Local Proxy (localhost:3000)</span>
     </div>
 
     <section class="result" aria-live="polite">
@@ -191,6 +278,19 @@
         <button id="downloadBtn" disabled>Download video</button>
       </div>
     </section>
+
+    <details class="local-info">
+      <summary style="cursor: pointer; font-weight: bold;">How to run locally?</summary>
+      <div style="margin-top: 10px;">
+        <p>1. Clone the repository:</p>
+        <code>git clone https://github.com/DisabledAbel/gdrive-mp4-extractor.git</code>
+        <p>2. Install dependencies:</p>
+        <code>npm install</code>
+        <p>3. Start the server:</p>
+        <code>npm start</code>
+        <p>4. Open <code>http://localhost:3000</code> in your browser and enable "Use Local Proxy".</p>
+      </div>
+    </details>
   </main>
 
   <script>
@@ -204,9 +304,9 @@
     const chipEls = [...document.querySelectorAll('.chip')];
 
     const hintsByFormat = {
-      vlcWeb: 'Hosted Vercel MP4 URL ending in .mp4.',
-      movWeb: 'Hosted Vercel MOV URL ending in .mov.',
-      mkvWeb: 'Hosted Vercel MKV URL ending in .mkv.',
+      vlcWeb: 'Proxy MP4 URL ending in .mp4.',
+      movWeb: 'Proxy MOV URL ending in .mov.',
+      mkvWeb: 'Proxy MKV URL ending in .mkv.',
       download: 'Direct download URL: prompts your browser to save the video file through this app.'
     };
 
@@ -235,7 +335,18 @@
     }
 
     function buildLinks() {
-      const hostedMp4 = resolvedMp4Url;
+      let hostedMp4 = resolvedMp4Url;
+      if (localProxyToggle.checked && hostedMp4) {
+        try {
+          const url = new URL(hostedMp4);
+          url.host = 'localhost:3000';
+          url.protocol = 'http:';
+          hostedMp4 = url.toString();
+        } catch (e) {
+          // Fallback if URL parsing fails
+        }
+      }
+
       const hostedMov = resolvedMovUrl || hostedMp4.replace(/\.mp4(\?|$)/i, '.mov$1');
       const hostedMkv = resolvedMkvUrl || hostedMp4.replace(/\.mp4(\?|$)/i, '.mkv$1');
       return {
@@ -414,6 +525,7 @@
     }
 
     inputEl.addEventListener('input', render);
+    localProxyToggle.addEventListener('change', render);
     chipEls.forEach((chip) => {
       chip.addEventListener('click', () => {
         updateActiveChip(chip.dataset.format);

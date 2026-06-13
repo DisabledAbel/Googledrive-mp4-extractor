@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000;
 const streamProxy = createStreamingProxy();
 
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/resolve', (req, res) => {
   resolveHandler(req, res);
@@ -84,7 +84,7 @@ app.get('/mp4/:fileId.mkv', (req, res) => {
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(port, () => {
