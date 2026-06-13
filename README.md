@@ -103,20 +103,24 @@ You can run the extractor on your own machine:
 1. **Clone the repository**
    ```bash
    git clone https://github.com/DisabledAbel/gdrive-mp4-extractor.git
+   ```
+
+2. **Enter the directory**
+   ```bash
    cd gdrive-mp4-extractor
    ```
 
-2. **Install dependencies**
+3. **Install dependencies**
    ```bash
    npm install
    ```
 
-3. **Start the server**
+4. **Start the server**
    ```bash
    npm start
    ```
 
-4. **Open the app**
+5. **Open the app**
    Visit `http://localhost:3000` in your browser. (The app will automatically use your local server to generate links).
 
 ---
