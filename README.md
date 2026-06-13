@@ -117,7 +117,7 @@ You can run the extractor on your own machine:
    ```
 
 4. **Open the app**
-   Visit `http://localhost:3000` and enable **"Use Local Proxy"** to generate local links.
+   Visit `http://localhost:3000` in your browser. (The app will automatically use your local server to generate links).
 
 ---
 
