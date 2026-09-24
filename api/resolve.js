@@ -1,4 +1,5 @@
 const { extractDriveParams } = require('../lib/drive');
+const { getRequestOrigin } = require('../lib/request-origin');
 
 module.exports = async function handler(req, res) {
   try {
@@ -15,20 +16,19 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const protocol = req.headers['x-forwarded-proto'] || 'https';
-    const host = req.headers.host || 'localhost';
-    const mp4Url = new URL(`${protocol}://${host}/mp4/${fileId}.mp4`);
+    const origin = getRequestOrigin(req);
+    const mp4Url = new URL(`/mp4/${fileId}.mp4`, origin);
     if (resourceKey) mp4Url.searchParams.set('rk', resourceKey);
 
     const downloadUrl = new URL(mp4Url.toString());
     downloadUrl.searchParams.set('download', '1');
-    const movUrl = new URL(`${protocol}://${host}/mp4/${fileId}.mov`);
+    const movUrl = new URL(`/mp4/${fileId}.mov`, origin);
     if (resourceKey) movUrl.searchParams.set('rk', resourceKey);
 
     const downloadMovUrl = new URL(movUrl.toString());
     downloadMovUrl.searchParams.set('download', '1');
 
-    const mkvUrl = new URL(`${protocol}://${host}/mp4/${fileId}.mkv`);
+    const mkvUrl = new URL(`/mp4/${fileId}.mkv`, origin);
     if (resourceKey) mkvUrl.searchParams.set('rk', resourceKey);
 
     const downloadMkvUrl = new URL(mkvUrl.toString());
