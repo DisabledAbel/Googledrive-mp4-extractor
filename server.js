@@ -8,12 +8,13 @@ const { extractDriveParams } = require('./lib/drive');
 
 const app = express();
 const port = process.env.PORT || 3000;
+const publicDirectory = path.join(__dirname, 'public');
 
 // Create a shared streaming proxy instance
 const streamProxy = createStreamingProxy();
 
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static(publicDirectory));
 
 app.get('/api/resolve', (req, res) => {
   resolveHandler(req, res);
@@ -84,9 +85,13 @@ app.get('/mp4/:fileId.mkv', (req, res) => {
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(publicDirectory, 'index.html'));
 });
 
-app.listen(port, () => {
-  console.log(`gdrive-mp4-extractor running at http://localhost:${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`gdrive-mp4-extractor running at http://localhost:${port}`);
+  });
+}
+
+module.exports = app;

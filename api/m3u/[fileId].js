@@ -1,4 +1,5 @@
 const { extractDriveParams, sanitizeFileName } = require('../../lib/drive');
+const { getRequestOrigin } = require('../../lib/request-origin');
 
 module.exports = async function handler(req, res) {
   try {
@@ -11,9 +12,7 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const protocol = req.headers['x-forwarded-proto'] || 'https';
-    const host = req.headers.host;
-    const mp4Url = new URL(`${protocol}://${host}/mp4/${fileId}.mp4`);
+    const mp4Url = new URL(`/mp4/${fileId}.mp4`, getRequestOrigin(req));
     if (resourceKey) mp4Url.searchParams.set('rk', resourceKey);
 
     const fileName = sanitizeFileName(req.query.name || fileId);
