@@ -1,5 +1,6 @@
 const { Readable } = require('stream');
 const { extractDriveParams, sanitizeFileName, fetchDriveStream } = require('../../lib/drive');
+const { pipeUpstreamStream, sendStreamError } = require('../../lib/streaming-proxy');
 
 module.exports = async function handler(req, res) {
   try {
@@ -55,11 +56,8 @@ module.exports = async function handler(req, res) {
     res.setHeader('Content-Disposition', `${forceDownload ? 'attachment' : 'inline'}; filename="${finalName}"`);
     res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
 
-    Readable.fromWeb(driveResponse.body).pipe(res);
+    await pipeUpstreamStream(Readable.fromWeb(driveResponse.body), res);
   } catch (error) {
-    res.status(502).json({
-      error: 'Could not fetch video from Google Drive.',
-      detail: error.message
-    });
+    sendStreamError(res, 'Could not fetch video from Google Drive.', error);
   }
 };
