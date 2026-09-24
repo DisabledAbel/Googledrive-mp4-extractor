@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('node:http');
+const { PassThrough } = require('node:stream');
 const express = require('express');
 
 const drivePath = require.resolve('../lib/drive');
@@ -18,7 +19,13 @@ require.cache[drivePath] = {
     sanitizeFileName: value => value,
     fetchDriveStream: async () => ({
       status: 200,
-      headers: new Headers({ 'content-type': 'video/mp4', 'accept-ranges': 'bytes' }),
+      headers: new Headers({
+        'content-type': 'video/mp4',
+        'accept-ranges': 'bytes',
+        'cache-control': 'public, max-age=3600',
+        etag: 'test-etag',
+        'last-modified': 'Wed, 21 Oct 2015 07:28:00 GMT'
+      }),
       body: upstreamFactory()
     })
   }
@@ -27,7 +34,7 @@ delete require.cache[proxyPath];
 delete require.cache[mp4Path];
 
 const mp4Handler = require('../api/mp4/[fileId]');
-const { StreamingProxy } = require('../lib/streaming-proxy');
+const { StreamingProxy, pipeUpstreamStream } = require('../lib/streaming-proxy');
 
 test.after(() => {
   if (originalDrive) require.cache[drivePath] = originalDrive;
@@ -76,6 +83,9 @@ test('MP4 handler returns 502 when the upstream fails before streaming starts', 
   const { res, body } = await request(server);
   assert.equal(res.statusCode, 502);
   assert.match(res.headers['content-type'], /^application\/json/);
+  assert.equal(res.headers['cache-control'], 'no-store');
+  assert.equal(res.headers.etag, undefined);
+  assert.equal(res.headers['last-modified'], undefined);
   assert.match(body, /Could not fetch video from Google Drive/);
   assert.match(body, /upstream connection reset/);
 });
@@ -137,4 +147,25 @@ test('client disconnect cancels the upstream stream without an uncaught error', 
 
   await wasCancelled;
   assert.equal(process.exitCode, undefined);
+});
+
+test('an already-closed response is not piped and destroys the upstream', async () => {
+  const source = new PassThrough();
+  const response = new PassThrough();
+  response.destroy();
+
+  await pipeUpstreamStream(source, response);
+
+  assert.equal(source.destroyed, true);
+});
+
+test('a response error destroys the upstream before rejecting', async () => {
+  const source = new PassThrough();
+  const response = new PassThrough();
+  const streaming = pipeUpstreamStream(source, response);
+
+  response.emit('error', new Error('client socket failed'));
+
+  await assert.rejects(streaming, /client socket failed/);
+  assert.equal(source.destroyed, true);
 });
